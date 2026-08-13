@@ -2,10 +2,12 @@ from django.contrib.auth import get_user_model
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth.tokens import default_token_generator
 
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
+##  ----- EMAIL VERIFICATION ----
+# from django.contrib.auth.tokens import default_token_generator
+# from django.utils.encoding import force_bytes
+# from django.utils.http import urlsafe_base64_encode
+# from .tasks import send_verification_email
 
 
 User = get_user_model()
@@ -50,13 +52,25 @@ class UserRegistrationSerializer(ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-
         password = validated_data.pop('password')
 
         new_user = User.objects.create_user(
             password = password,
             **validated_data
         )
+
+        # token = default_token_generator.make_token(new_user)
+
+        # uid = urlsafe_base64_encode(
+        #     force_bytes(new_user.pk)
+        # )
+
+        # verification_url = (
+        #     f"http://127.0.0.1:8000/api/auth/verify-email/{uid}/{token}/"
+        # )
+
+        # send_verification_email.delay( new_user.email,verification_url )
+
         return new_user
 
 class LoginSerializer(serializers.Serializer):
